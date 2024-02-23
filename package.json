@@ -1,0 +1,23 @@
+{
+  "name": "lgp-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./dist/index.js"
+  },
+  "author": "Cryptech Services",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "@metrixcoin/metrilib": "^1.6.0-beta",
+    "axios": "^1.6.7",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.19",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  }
+}
