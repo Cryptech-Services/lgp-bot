@@ -1,9 +1,10 @@
 import {
   ChatInputCommandInteraction,
   CacheType,
-  SlashCommandBuilder,
+  SlashCommandBuilder
 } from 'discord.js';
-import axios, {AxiosResponse} from 'axios';
+import axios, { AxiosResponse } from 'axios';
+import { formatLargeNumber } from '../util/number';
 
 const data = new SlashCommandBuilder()
   .setName('marketcap')
@@ -13,12 +14,18 @@ const data = new SlashCommandBuilder()
       .setName('token')
       .setDescription('The token to get the marketcap of')
       .setRequired(true)
-      .addChoices({name: 'MRX', value: 'MRX'}, {name: 'gMRX', value: 'gMRX'})
+      .addChoices(
+        { name: 'MRX', value: 'MRX' },
+        { name: 'gMRX', value: 'gMRX' }
+      )
   );
 
 const execute = async (interaction: ChatInputCommandInteraction<CacheType>) => {
   const token = interaction.options.getString('token');
-
+  const message = await interaction.reply({
+    ephemeral: true,
+    content: 'Fetching data...'
+  });
   if (token) {
     try {
       const response1: AxiosResponse<any> = await axios.get(
@@ -37,13 +44,16 @@ const execute = async (interaction: ChatInputCommandInteraction<CacheType>) => {
             }metrixlgp.finance/api/${token}/supply`
       );
       const supply = response2.data; // JSON data
-      await interaction.reply(
-        `${token} Market Cap: ${(supply * price).toFixed(2)} USD`
-      );
+      await message.edit({
+        content: `${token} Market Cap: ${(supply * price).toFixed(2)} USD`
+      });
     } catch (error) {
       console.error('Error fetching data:', error);
+      await message.edit({
+        content: `An unexpected error occurred. Please try again later.`
+      });
     }
   }
 };
 
-export const marketcap = {data, execute};
+export const marketcap = { data, execute };

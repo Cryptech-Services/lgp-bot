@@ -1,9 +1,9 @@
 import {
   ChatInputCommandInteraction,
   CacheType,
-  SlashCommandBuilder,
+  SlashCommandBuilder
 } from 'discord.js';
-import axios, {AxiosResponse} from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 const data = new SlashCommandBuilder()
   .setName('price')
@@ -13,12 +13,18 @@ const data = new SlashCommandBuilder()
       .setName('token')
       .setDescription('The token to get the supply of')
       .setRequired(true)
-      .addChoices({name: 'MRX', value: 'MRX'}, {name: 'gMRX', value: 'gMRX'})
+      .addChoices(
+        { name: 'MRX', value: 'MRX' },
+        { name: 'gMRX', value: 'gMRX' }
+      )
   );
 
 const execute = async (interaction: ChatInputCommandInteraction<CacheType>) => {
   const token = interaction.options.getString('token');
-
+  const message = await interaction.reply({
+    ephemeral: true,
+    content: 'Fetching data...'
+  });
   if (token) {
     try {
       const response: AxiosResponse<any> = await axios.get(
@@ -27,11 +33,16 @@ const execute = async (interaction: ChatInputCommandInteraction<CacheType>) => {
         }metrixlgp.finance/api/${token}/price`
       );
       const data = response.data; // JSON data
-      await interaction.reply(`1 ${token} = ${data} USD`);
+      await message.edit({
+        content: `${token} Price: ${data} USD`
+      });
     } catch (error) {
       console.error('Error fetching data:', error);
+      await message.edit({
+        content: `An unexpected error occurred. Please try again later.`
+      });
     }
   }
 };
 
-export const price = {data, execute};
+export const price = { data, execute };

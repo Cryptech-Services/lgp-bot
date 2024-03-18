@@ -8,16 +8,17 @@ import {
   Collection,
   Guild,
   GuildBasedChannel,
-  ChannelType,
+  ChannelType
 } from 'discord.js';
-import {reserves} from './commands/reserves';
-import {network} from './commands/network';
-import {totalsupply} from './commands/totalsupply';
-import {tvl} from './commands/tvl';
-import {price} from './commands/price';
-import {marketcap} from './commands/marketcap';
-import {tickers} from './commands/tickers';
-import axios, {AxiosResponse} from 'axios';
+import { reserves } from './commands/reserves';
+import { network } from './commands/network';
+import { totalsupply } from './commands/totalsupply';
+import { tvl } from './commands/tvl';
+import { price } from './commands/price';
+import { marketcap } from './commands/marketcap';
+import { tickers } from './commands/tickers';
+import axios, { AxiosResponse } from 'axios';
+import { formatLargeNumber } from './util/number';
 
 dotenv.config();
 
@@ -28,7 +29,7 @@ const commands = [
   reserves.data.toJSON(),
   tickers.data.toJSON(),
   totalsupply.data.toJSON(),
-  tvl.data.toJSON(),
+  tvl.data.toJSON()
 ];
 
 const cooldowns = new Collection<string, Collection<string, number>>();
@@ -38,7 +39,7 @@ for (const command of commands) {
   }
 }
 
-const rest = new REST({version: '10'}).setToken(process.env.TOKEN as string);
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);
 
 const start = async () => {
   try {
@@ -46,7 +47,7 @@ const start = async () => {
 
     await rest.put(
       Routes.applicationCommands(process.env.CLIENT_ID as string),
-      {body: commands}
+      { body: commands }
     );
 
     console.log('Successfully reloaded application (/) commands.');
@@ -54,7 +55,7 @@ const start = async () => {
     console.error(error);
   }
 
-  const client = new Client({intents: [GatewayIntentBits.Guilds]});
+  const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
   const tickersLoop = async () => {
     const activeTickerGuild = client.guilds.cache.filter(
@@ -79,20 +80,33 @@ const start = async () => {
             process.env.NETWORK === 'MainNet' ? '' : 'test.'
           }metrixlgp.finance/api/mrx/price`
         );
-        mrxPrice = response1.data; // JSON data
+        mrxPrice = response1.data;
         const response2: AxiosResponse<any> = await axios.get(
           `https://${
             process.env.NETWORK === 'MainNet' ? '' : 'test.'
           }metrixlgp.finance/api/gmrx/price`
         );
-        gmrxPrice = response2.data; // JSON data
+        gmrxPrice = response2.data;
         const response3: AxiosResponse<any> = await axios.get(
           `https://${
             process.env.NETWORK === 'MainNet' ? '' : 'test.'
           }metrixlgp.finance/api/liquidity/reserves`
         );
-        const {wmrx, gmrx, lp} = response3.data; // JSON data
+
+        const response4: AxiosResponse<any> = await axios.get(
+          `https://${
+            process.env.NETWORK === 'MainNet' ? '' : 'test.'
+          }metrixlgp.finance/api/gmrx/marketcap`
+        );
+        const response5: AxiosResponse<any> = await axios.get(
+          `https://${
+            process.env.NETWORK === 'MainNet' ? '' : 'test.'
+          }metrixlgp.finance/api/volume`
+        );
+        const volume = response5.data; // JSON data
+        const { wmrx, gmrx, lp } = response3.data;
         const tvl = wmrx * mrxPrice + gmrx * gmrxPrice;
+        const marketcap = response4.data;
         for (const [gid, guild] of activeTickerGuild) {
           const categories = guild.channels.cache.filter(
             (
@@ -114,10 +128,30 @@ const start = async () => {
           for (const [cid, channel] of children) {
             if (channel.name.startsWith('MRX -')) {
               await channel.setName(`MRX - ${mrxPrice} USD`);
+              if (mrxPrice > gmrxPrice) {
+                await channel.edit({ position: 1 });
+              }
             } else if (channel.name.startsWith('gMRX -')) {
               await channel.setName(`gMRX - ${gmrxPrice} USD`);
+              if (gmrxPrice > mrxPrice) {
+                await channel.edit({ position: 1 });
+              }
             } else if (channel.name.startsWith('TVL -')) {
-              await channel.setName(`TVL - ${tvl.toFixed(2)} USD`);
+              await channel.setName(
+                `TVL - ${formatLargeNumber(Number(tvl.toFixed(2)))} USD`
+              );
+            } else if (channel.name.startsWith('Market Cap -')) {
+              await channel.setName(
+                `Market Cap - ${formatLargeNumber(
+                  Number(marketcap.toFixed(2))
+                )} USD`
+              );
+            } else if (channel.name.startsWith('24h Volume -')) {
+              await channel.setName(
+                `24h Volume - ${formatLargeNumber(
+                  Number(volume.toFixed(2))
+                )} USD`
+              );
             }
           }
         }
@@ -150,7 +184,7 @@ const start = async () => {
         const expiredTimestamp = Math.round(expirationTime / 1000);
         await interaction.reply({
           content: `Please wait, you are on a cooldown for \`${interaction.commandName}\`. You can use it again <t:${expiredTimestamp}:R>.`,
-          ephemeral: true,
+          ephemeral: true
         });
         return;
       }
@@ -185,7 +219,7 @@ const start = async () => {
 
   await client.login(process.env.TOKEN as string);
   client.user?.setActivity(`${process.env.NETWORK} Metrix LGP`, {
-    type: ActivityType.Watching,
+    type: ActivityType.Watching
   });
 
   const handleShutdown = async (signal: string) => {

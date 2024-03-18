@@ -10,7 +10,10 @@ const data = new SlashCommandBuilder()
   .setDescription('Gets the network of the LGP bot');
 
 const execute = async (interaction: ChatInputCommandInteraction<CacheType>) => {
-  interaction.reply(process.env.NETWORK as NetworkType);
+  interaction.reply({
+    ephemeral: true,
+    content: process.env.NETWORK as NetworkType,
+  });
 };
 
 export const network = {data, execute};

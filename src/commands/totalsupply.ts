@@ -1,9 +1,9 @@
 import {
   ChatInputCommandInteraction,
   CacheType,
-  SlashCommandBuilder,
+  SlashCommandBuilder
 } from 'discord.js';
-import axios, {AxiosResponse} from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 const data = new SlashCommandBuilder()
   .setName('totalsupply')
@@ -14,17 +14,20 @@ const data = new SlashCommandBuilder()
       .setDescription('The token to get the supply of')
       .setRequired(true)
       .addChoices(
-        {name: 'MRX', value: 'MRX'},
-        {name: 'gMRX', value: 'gMRX'},
-        {name: 'wMRX', value: 'wMRX'},
-        {name: 'LGP-LP', value: 'LGP-LP'},
-        {name: 'g', value: 'g'}
+        { name: 'MRX', value: 'MRX' },
+        { name: 'gMRX', value: 'gMRX' },
+        { name: 'wMRX', value: 'wMRX' },
+        { name: 'LGP-LP', value: 'LGP-LP' },
+        { name: 'g', value: 'g' }
       )
   );
 
 const execute = async (interaction: ChatInputCommandInteraction<CacheType>) => {
   const token = interaction.options.getString('token');
-
+  const message = await interaction.reply({
+    ephemeral: true,
+    content: 'Fetching data...'
+  });
   if (token) {
     try {
       switch (token) {
@@ -37,7 +40,7 @@ const execute = async (interaction: ChatInputCommandInteraction<CacheType>) => {
               `
             );
             const data = response.data; // JSON data
-            interaction.reply(`${data} ${token}`);
+            await message.edit({ content: `${data} ${token}` });
           }
           break;
         case 'gMRX':
@@ -51,16 +54,22 @@ const execute = async (interaction: ChatInputCommandInteraction<CacheType>) => {
               }metrixlgp.finance/api/${token}/supply`
             );
             const data = response.data; // JSON data
-            interaction.reply(`${data} ${token}`);
+            await message.edit({ content: `${data} ${token}` });
           }
           break;
         default:
+          await message.edit({ content: `Invalid token provided.` });
           break;
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      await message.edit({
+        content: `An unexpected error occurred. Please try again later.`
+      });
     }
+  } else {
+    await message.edit({ content: `No token was provided.` });
   }
 };
 
-export const totalsupply = {data, execute};
+export const totalsupply = { data, execute };
