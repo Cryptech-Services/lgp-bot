@@ -17,6 +17,7 @@ import { tvl } from './commands/tvl';
 import { price } from './commands/price';
 import { marketcap } from './commands/marketcap';
 import { tickers } from './commands/tickers';
+import { volume } from './commands/volume';
 import axios, { AxiosResponse } from 'axios';
 import { formatLargeNumber } from './util/number';
 
@@ -29,7 +30,8 @@ const commands = [
   reserves.data.toJSON(),
   tickers.data.toJSON(),
   totalsupply.data.toJSON(),
-  tvl.data.toJSON()
+  tvl.data.toJSON(),
+  volume.data.toJSON()
 ];
 
 const cooldowns = new Collection<string, Collection<string, number>>();
@@ -40,6 +42,8 @@ for (const command of commands) {
 }
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 const start = async () => {
   try {
@@ -54,8 +58,6 @@ const start = async () => {
   } catch (error) {
     console.error(error);
   }
-
-  const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
   const tickersLoop = async () => {
     const activeTickerGuild = client.guilds.cache.filter(
@@ -171,7 +173,7 @@ const start = async () => {
 
   client.on('interactionCreate', async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
-    const defaultCooldownDuration = 30;
+    const defaultCooldownDuration = 10;
     const cooldownAmount = defaultCooldownDuration * 1000;
     const now = Date.now();
     const timestamps =
@@ -211,6 +213,9 @@ const start = async () => {
         break;
       case 'tvl':
         await tvl.execute(interaction);
+        break;
+      case 'volume':
+        await volume.execute(interaction);
         break;
       default:
         break;
