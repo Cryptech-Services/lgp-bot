@@ -1,8 +1,8 @@
-import {NetworkType} from '@metrixcoin/metrilib';
+import { NetworkType } from '@metrixcoin/metrilib';
 import {
   ChatInputCommandInteraction,
   CacheType,
-  SlashCommandBuilder,
+  SlashCommandBuilder
 } from 'discord.js';
 
 const data = new SlashCommandBuilder()
@@ -12,8 +12,8 @@ const data = new SlashCommandBuilder()
 const execute = async (interaction: ChatInputCommandInteraction<CacheType>) => {
   interaction.reply({
     ephemeral: true,
-    content: process.env.NETWORK as NetworkType,
+    content: process.env.NETWORK as NetworkType
   });
 };
 
-export const network = {data, execute};
+export const network = { data, execute };
