@@ -18,6 +18,7 @@ import { price } from './commands/price';
 import { marketcap } from './commands/marketcap';
 import { tickers } from './commands/tickers';
 import { volume } from './commands/volume';
+import { version } from './commands/version';
 import axios, { AxiosResponse } from 'axios';
 import { formatLargeNumber } from './util/number';
 
@@ -31,7 +32,8 @@ const commands = [
   tickers.data.toJSON(),
   totalsupply.data.toJSON(),
   tvl.data.toJSON(),
-  volume.data.toJSON()
+  volume.data.toJSON(),
+  version.data.toJSON()
 ];
 
 const cooldowns = new Collection<string, Collection<string, number>>();
@@ -217,6 +219,8 @@ const start = async () => {
       case 'volume':
         await volume.execute(interaction);
         break;
+      case 'version':
+        await version.execute(interaction);
       default:
         break;
     }
