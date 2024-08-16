@@ -221,6 +221,7 @@ const start = async () => {
         break;
       case 'version':
         await version.execute(interaction);
+        break;
       default:
         break;
     }
