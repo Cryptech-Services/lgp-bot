@@ -10,10 +10,11 @@ const data = new SlashCommandBuilder()
 
 const execute = async (interaction: ChatInputCommandInteraction<CacheType>) => {
   const pkg = require('../../package.json');
+  const name = pkg && pkg.name ? pkg.name : 'Unknown';
   const version = pkg && pkg.version ? pkg.version : 'Unknown';
   interaction.reply({
     ephemeral: true,
-    content: version
+    content: `${name} v${version}`
   });
 };
 
