@@ -4,13 +4,14 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/index.js",
+    "lint": "eslint ."
   },
   "author": "Cryptech Services",
   "license": "MIT",
   "description": "",
   "dependencies": {
-    "@metrixcoin/metrilib": "^1.6.0-beta",
+    "@metrixcoin/metrilib": "^1.6.1-beta",
     "axios": "^1.6.7",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5"
