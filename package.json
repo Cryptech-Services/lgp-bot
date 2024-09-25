@@ -18,7 +18,7 @@
     "dotenv": "^16.4.5"
   },
   "devDependencies": {
-    "@types/node": "^22.4.1",
+    "@types/node": "^22.7.0",
     "eslint": "^9.9.0",
     "prettier": "^3.3.3",
     "typescript": "^5.5.4"
